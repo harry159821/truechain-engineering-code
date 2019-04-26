@@ -257,7 +257,7 @@ func NewProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 	return manager, nil
 }
 
-func (pm *ProtocolManager) removePeer(id string) {
+func (pm *ProtocolManager) removePeer(id string, call uint32) {
 	// Short circuit if the peer was already removed
 	peer := pm.peers.Peer(id)
 
@@ -279,7 +279,7 @@ func (pm *ProtocolManager) removePeer(id string) {
 
 	// Hard disconnect at the networking layer
 	if peer != nil {
-		log.Info("Removing peer  Disconnect", "peer", id, "RemoteAddr", peer.RemoteAddr())
+		log.Info("Removing peer  Disconnect", "call", call, "peer", id, "RemoteAddr", peer.RemoteAddr())
 		peer.Peer.Disconnect(p2p.DiscUselessPeer)
 	}
 }
@@ -417,7 +417,7 @@ func (pm *ProtocolManager) handle(p *peer) error {
 		return err
 	}
 
-	defer pm.removePeer(p.id)
+	defer pm.removePeer(p.id, types.Normal)
 
 	//Register the peer in the downloader. If the downloader considers it banned, we disconnect
 	if err := pm.downloader.RegisterPeer(p.id, p.version, p.RemoteAddr().String(), p); err != nil {

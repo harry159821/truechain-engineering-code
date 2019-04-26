@@ -54,7 +54,7 @@ type chainHeightFn func() uint64
 type chainInsertFn func(types.SnailBlocks) (int, error)
 
 // peerDropFn is a callback type for dropping a peer detected as malicious.
-type peerDropFn func(id string)
+type peerDropFn func(id string, call uint32)
 
 // inject represents a schedules import operation.
 type inject struct {
@@ -258,7 +258,7 @@ func (f *Fetcher) insert(peer string, block *types.SnailBlock) {
 		default:
 			// Something went very wrong, drop the peer
 			log.Debug("Propagated snail block verification failed", "peer", peer, "number", block.Number(), "hash", hash, "err", err)
-			f.dropPeer(peer)
+			f.dropPeer(peer, types.SFetcherCall)
 			return
 		}
 		// Run the actual import and log any issues
